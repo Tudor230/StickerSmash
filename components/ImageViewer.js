@@ -8,7 +8,6 @@ export default function ImageViewer({ placeholder, selectedImage }) {
 const styles = StyleSheet.create({
   image: {
     width: 320,
-    height: 480,
-    borderRadius: 18,
+    height: 440,
   },
 });

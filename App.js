@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import ImageViewer from "./components/ImageViewer";
 import * as ImagePicker from "expo-image-picker";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as MediaLibrary from "expo-media-library";
 import { captureRef } from "react-native-view-shot";
@@ -16,6 +16,7 @@ import EmojiList from "./components/EmojiList";
 import EmojiSticker from "./components/EmojiSticker";
 
 export default function App() {
+  const [isSaving, setIsSaving] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showAppOptions, setShowAppOptions] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -50,10 +51,12 @@ export default function App() {
   };
 
   const onSaveImage = async () => {
+    setIsSaving(true);
     try {
       const localUri = await captureRef(imageRef, {
         height: 440,
         quality: 1,
+        format: "png",
       });
 
       await MediaLibrary.saveToLibraryAsync(localUri);
@@ -62,13 +65,19 @@ export default function App() {
       }
     } catch (e) {
       console.log(e);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <View style={styles.container}>
       <GestureHandlerRootView style={styles.imageContainer}>
-        <View ref={imageRef} collapsable={false}>
+        <View
+          ref={imageRef}
+          collapsable={false}
+          style={[styles.imageWrapper, isSaving && styles.savingImageWrapper]}
+        >
           <ImageViewer
             placeholder={Placeholder}
             selectedImage={selectedImage}
@@ -126,6 +135,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 58,
     height: 440,
+  },
+  imageWrapper: {
+    width: 320,
+    height: 440,
+    borderRadius: 18,
+    overflow: "hidden",
+  },
+  savingImageWrapper: {
+    borderRadius: 0,
   },
   footerContainer: {
     flex: 1 / 2,
